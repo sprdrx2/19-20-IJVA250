@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.Article;
 import com.example.demo.entity.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -35,16 +36,16 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
         Client client3 = newClient("D\"oe", "Jo;hn", LocalDate.of(2000, 1, 3));
         em.persist(client3);
 
-/*        Article a1 = new Article();
+       Article a1 = new Article();
         a1.setLibelle("Balayette");
         a1.setPrix(3.99);
         em.persist(a1);
 
         Article a2 = new Article();
         a2.setLibelle("Style espion");
-        a2.setPrix(130);
+        a2.setPrix(130.0);
         em.persist(a2);
-
+/*
         Facture f1 = new Facture();
         f1.setClient(client1);
         em.persist(f1);

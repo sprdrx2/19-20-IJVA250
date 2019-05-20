@@ -32,6 +32,9 @@ public class ExportController {
         List<Client> allClients = clientService.findAllClients();
         LocalDate now = LocalDate.now();
         writer.println("Id;Nom;Prenom;Date de Naissance;Age");
-
+        List<Client> clientList = clientService.findAllClients();
+        for (Client client : clientList) {
+            writer.println(client.toCSV());
+        }
     }
 }

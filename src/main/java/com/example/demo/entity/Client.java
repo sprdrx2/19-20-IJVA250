@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import javax.persistence.*;
+import java.lang.invoke.StringConcatFactory;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -55,4 +56,13 @@ public class Client {
         this.dateNaissance = dateNaissance;
     }
 
+    public Integer calculateAge() {
+        return LocalDate.now().getYear() -  this.dateNaissance.getYear();
+    }
+
+    public String toCSV() {
+        // beurk
+        // replaceAll("\\\"","\\\\\"")
+        return this.id + ";" + '"' + this.nom + '"' + ";" + '"' + this.prenom + '"' + ";" + this.dateNaissance.toString() + ";" + this.calculateAge().toString();
+    }
 }

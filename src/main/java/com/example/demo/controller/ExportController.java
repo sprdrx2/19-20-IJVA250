@@ -48,7 +48,7 @@ public class ExportController {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("ContentDisposition", "attachment; filename=\"clients.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Factures");
+        Sheet sheet = workbook.createSheet("Clients");
         Integer rowIndex = 0;
         for (Client client : clientService.findAllClients()) {
             Row headerRow = sheet.createRow(rowIndex);

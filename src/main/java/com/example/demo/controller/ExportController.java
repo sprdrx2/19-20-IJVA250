@@ -2,6 +2,11 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Client;
 import com.example.demo.service.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +41,41 @@ public class ExportController {
         for (Client client : clientList) {
             writer.println(client.toCSV());
         }
+    }
+
+    @GetMapping("/clients/xlsx")
+    public void clientsXLSX(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("ContentDisposition", "attachment; filename=\"clients.xlsx\"");
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Factures");
+        Integer rowIndex = 0;
+        for (Client client : clientService.findAllClients()) {
+            Row headerRow = sheet.createRow(rowIndex);
+            Cell cellId = headerRow.createCell(0);
+            Cell cellNom = headerRow.createCell(1);
+            Cell cellPrenom = headerRow.createCell(2);
+            Cell cellDateNaissance = headerRow.createCell(3);
+            Cell cellAge = headerRow.createCell(4);
+            cellId.setCellValue(client.getId());
+            cellNom.setCellValue(client.getNom());
+            cellPrenom.setCellValue(client.getPrenom());
+            cellDateNaissance.setCellValue(client.getDateNaissance().toString());
+            cellAge.setCellValue(client.calculateAge());
+            rowIndex++;
+        }
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+    @GetMapping("/factures/xlsx")
+    public void facturesXLSX(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("ContentDisposition", "attachment; filename=\"factures.xlsx\"");
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Clients");
+
+        workbook.write(response.getOutputStream());
     }
 
 }

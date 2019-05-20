@@ -61,13 +61,13 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
     }
 
 
-        private LigneFacture newLigneFacture(Facture f, Article a1, int quantite) {
+    private LigneFacture newLigneFacture(Facture f, Article a1, int quantite) {
             LigneFacture lf1 = new LigneFacture();
             lf1.setArticle(a1);
             lf1.setQuantite(quantite);
             lf1.setFacture(f);
             return lf1;
-        }
+    }
 
     private Client newClient(String nom, String prenom, LocalDate dateNaissance) {
         Client client = new Client();

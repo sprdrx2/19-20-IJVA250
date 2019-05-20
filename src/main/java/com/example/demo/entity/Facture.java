@@ -38,4 +38,20 @@ public class Facture {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public Integer calculateNombreArticles() {
+        Integer nombreArticles = 0;
+        for (LigneFacture facture : this.getLigneFactures()) {
+            nombreArticles += facture.getQuantite();
+        }
+        return nombreArticles;
+    }
+
+    public Double calculateTotal() {
+        Double total = 0.0;
+        for (LigneFacture facture : this.getLigneFactures()) {
+            total += facture.getArticle().getPrix() * facture.getQuantite();
+        }
+        return total;
+    }
 }

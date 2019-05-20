@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Client;
+import com.example.demo.entity.Facture;
 import com.example.demo.service.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -29,6 +30,9 @@ public class ExportController {
     @Autowired
     private ClientService clientService;
 
+    @Autowired
+    private FactureService factureService;
+
     @GetMapping("/clients/csv")
     public void clientsCSV(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/csv");
@@ -49,14 +53,27 @@ public class ExportController {
         response.setHeader("ContentDisposition", "attachment; filename=\"clients.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Clients");
-        Integer rowIndex = 0;
+
+        Row headerRow               = sheet.createRow(0);
+        Cell hdrCellId              = headerRow.createCell(0);
+        Cell hdrCellNom             = headerRow.createCell(1);
+        Cell hdrCellPrenom          = headerRow.createCell(2);
+        Cell hdrCellDateNaissance   = headerRow.createCell(3);
+        Cell hdrCellAge             = headerRow.createCell(4);
+        hdrCellId.setCellValue("ID");
+        hdrCellNom.setCellValue("NOM");
+        hdrCellPrenom.setCellValue("PRENOM");
+        hdrCellDateNaissance.setCellValue("DATE DE NAISSANCE");
+        hdrCellAge.setCellValue("AGE");
+
+        Integer rowIndex = 1;
         for (Client client : clientService.findAllClients()) {
-            Row headerRow = sheet.createRow(rowIndex);
-            Cell cellId = headerRow.createCell(0);
-            Cell cellNom = headerRow.createCell(1);
-            Cell cellPrenom = headerRow.createCell(2);
-            Cell cellDateNaissance = headerRow.createCell(3);
-            Cell cellAge = headerRow.createCell(4);
+            Row clientRow           = sheet.createRow(rowIndex);
+            Cell cellId             = clientRow.createCell(0);
+            Cell cellNom            = clientRow.createCell(1);
+            Cell cellPrenom         = clientRow.createCell(2);
+            Cell cellDateNaissance  = clientRow.createCell(3);
+            Cell cellAge            = clientRow.createCell(4);
             cellId.setCellValue(client.getId());
             cellNom.setCellValue(client.getNom());
             cellPrenom.setCellValue(client.getPrenom());
@@ -73,8 +90,35 @@ public class ExportController {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("ContentDisposition", "attachment; filename=\"factures.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Clients");
+        Sheet sheet = workbook.createSheet("Factures");
 
+        Row headerRow           = sheet.createRow(0);
+        Cell hdrCellId          = headerRow.createCell(0);
+        Cell hdrCellClientNom   = headerRow.createCell(1);
+        Cell hdrCellClientPrenom= headerRow.createCell(2);
+        Cell hdrCellNbrArticles = headerRow.createCell(3);
+        Cell hdrCellTotal       = headerRow.createCell(4);
+        hdrCellId.setCellValue("ID");
+        hdrCellClientNom.setCellValue("CLIENT Nom");
+        hdrCellClientPrenom.setCellValue("CLIENT Prenom");
+        hdrCellNbrArticles.setCellValue("NOMBRE ARTICLES");
+        hdrCellTotal.setCellValue("TOTAL");
+
+        Integer rowIndex = 1;
+        for (Facture facture : factureService.findAllFactures() ) {
+            Row factureRow          = sheet.createRow(rowIndex);
+            Cell cellID             = factureRow.createCell(0);
+            Cell cellClientNom      = factureRow.createCell(1);
+            Cell cellClientPrenom   = factureRow.createCell(2);
+            Cell cellNbrArticles    = factureRow.createCell(3);
+            Cell cellTotal          = factureRow.createCell(4);
+            cellID.setCellValue(facture.getId());
+            cellClientNom.setCellValue(facture.getClient().getNom());
+            cellClientPrenom.setCellValue(facture.getClient().getPrenom());
+            cellNbrArticles.setCellValue(facture.calculateNombreArticles());
+            cellTotal.setCellValue(facture.calculateTotal());
+            rowIndex++;
+        }
         workbook.write(response.getOutputStream());
     }
 

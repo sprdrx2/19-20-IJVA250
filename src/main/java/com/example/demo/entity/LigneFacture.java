@@ -51,6 +51,10 @@ public class LigneFacture {
     public void setQuantite(Integer quantite) {
         this.quantite = quantite;
     }
+
+    public Double getSousTotal() {
+        return  article.getPrix() * quantite;
+    }
 }
 
 

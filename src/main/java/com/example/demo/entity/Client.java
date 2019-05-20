@@ -1,8 +1,8 @@
 package com.example.demo.entity;
 
 import javax.persistence.*;
-import java.lang.invoke.StringConcatFactory;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -23,6 +23,9 @@ public class Client {
 
     @Column
     private LocalDate dateNaissance;
+
+    @OneToMany
+    private Set<Facture> factures;
 
     public Long getId() {
         return id;
@@ -65,4 +68,13 @@ public class Client {
         // replaceAll("\\\"","\\\\\"")
         return this.id + ";" + '"' + this.nom + '"' + ";" + '"' + this.prenom + '"' + ";" + this.dateNaissance.toString() + ";" + this.calculateAge().toString();
     }
+
+    public Set<Facture> getFactures() {
+        return factures;
+    }
+
+    public void setFactures(Set<Facture> factures) {
+       this.factures = factures;
+    }
+
 }

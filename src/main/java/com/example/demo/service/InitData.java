@@ -70,6 +70,11 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
         em.persist(newLigneFacture(f3, a2, 4));
         em.persist(newLigneFacture(f3, a1, 2));
         em.persist(newLigneFacture(f3, a3, 99));
+
+        Facture f4 = new Facture();
+        f4.setClient(client1);
+        em.persist(f4);
+        em.persist(newLigneFacture(f4,a3, 1));
     }
 
 

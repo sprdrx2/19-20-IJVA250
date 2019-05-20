@@ -49,8 +49,8 @@ public class Facture {
 
     public Double calculateTotal() {
         Double total = 0.0;
-        for (LigneFacture facture : this.getLigneFactures()) {
-            total += facture.getArticle().getPrix() * facture.getQuantite();
+        for (LigneFacture ligneFacture : this.getLigneFactures()) {
+            total += ligneFacture.getSousTotal();
         }
         return total;
     }

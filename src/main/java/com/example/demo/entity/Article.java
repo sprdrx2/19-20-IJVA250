@@ -14,6 +14,7 @@ public class Article {
     @Column
     private Double prix;
 
+    public Long getId() { return this.id; }
     public Double getPrix() { return this.prix; }
     public String getLibelle() { return this.libelle; }
 

@@ -48,6 +48,11 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
         a2.setPrix(130.0);
         em.persist(a2);
 
+        Article a3 = new Article();
+        a3.setLibelle("Vent");
+        a3.setPrix(10000.0);
+        em.persist(a3);
+
         Facture f1 = new Facture();
         f1.setClient(client1);
         em.persist(f1);
@@ -58,6 +63,13 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
         f2.setClient(client2);
         em.persist(f2);
         em.persist(newLigneFacture(f2, a1, 10));
+
+        Facture f3 = new Facture();
+        f3.setClient(client3);
+        em.persist(f3);
+        em.persist(newLigneFacture(f3, a2, 4));
+        em.persist(newLigneFacture(f3, a1, 2));
+        em.persist(newLigneFacture(f3, a3, 99));
     }
 
 

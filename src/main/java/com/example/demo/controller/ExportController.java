@@ -132,8 +132,27 @@ public class ExportController {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("ContentDisposition", "attachment; filename=\"client-facture.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
+        workbook = makeClientWorkbook(workbook, client);
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
 
-        Sheet clientSheet = workbook.createSheet("Client");
+    @GetMapping("/factures/details/xlsx")
+    public void facturesDetailsXLSX(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("ContentDisposition", "attachment; filename=\"factures-detaillees.xlsx\"");
+        Workbook workbook = new XSSFWorkbook();
+        for (Client client : clientService.findAllClients()) {
+            workbook = makeClientWorkbook(workbook, client);
+        }
+        workbook.write(response.getOutputStream());
+        workbook.close();
+
+    }
+
+    public Workbook makeClientWorkbook(Workbook workbook, Client client) {
+        String patronymeClient = client.getNom() + " " + client.getPrenom();
+        Sheet clientSheet = workbook.createSheet(patronymeClient);
         Row row1 = clientSheet.createRow(0);
         Row row2 = clientSheet.createRow(1);
         Row row3 = clientSheet.createRow(2);
@@ -149,13 +168,13 @@ public class ExportController {
 
         //for(Facture facture : client.getFactures()) {
         for (Facture facture : factureService.getClientFactures(client)) {
-            Sheet factureSheet = workbook.createSheet("Facture " + facture.getId().toString());
+            Sheet factureSheet = workbook.createSheet(patronymeClient + " - Facture " + facture.getId().toString());
             Row headerRow = factureSheet.createRow(0);
-            Cell hdrCellArticleId   = headerRow.createCell(0);
-            Cell hdrCellArticleLib  = headerRow.createCell(1);
-            Cell hdrCellQuantite    = headerRow.createCell(2);
-            Cell hdrCellPrixUnit    = headerRow.createCell(3);
-            Cell hdrCellSubTotal    = headerRow.createCell(4);
+            Cell hdrCellArticleId = headerRow.createCell(0);
+            Cell hdrCellArticleLib = headerRow.createCell(1);
+            Cell hdrCellQuantite = headerRow.createCell(2);
+            Cell hdrCellPrixUnit = headerRow.createCell(3);
+            Cell hdrCellSubTotal = headerRow.createCell(4);
 
             hdrCellArticleId.setCellValue("ARTICLE ID");
             hdrCellArticleLib.setCellValue("LIBELE");
@@ -165,12 +184,12 @@ public class ExportController {
 
             Integer rowIndex = 1;
             for (LigneFacture ligneFacture : facture.getLigneFactures()) {
-                Row ligneFactureRow  = factureSheet.createRow(rowIndex);
-                Cell cellArticleId   = ligneFactureRow.createCell(0);
-                Cell cellArticleLib  = ligneFactureRow.createCell(1);
-                Cell cellQuantite    = ligneFactureRow.createCell(2);
-                Cell cellPrixUnit    = ligneFactureRow.createCell(3);
-                Cell cellSubTotal    = ligneFactureRow.createCell(4);
+                Row ligneFactureRow = factureSheet.createRow(rowIndex);
+                Cell cellArticleId = ligneFactureRow.createCell(0);
+                Cell cellArticleLib = ligneFactureRow.createCell(1);
+                Cell cellQuantite = ligneFactureRow.createCell(2);
+                Cell cellPrixUnit = ligneFactureRow.createCell(3);
+                Cell cellSubTotal = ligneFactureRow.createCell(4);
 
                 cellArticleId.setCellValue(ligneFacture.getArticle().getId());
                 cellArticleLib.setCellValue(ligneFacture.getArticle().getLibelle());
@@ -184,8 +203,6 @@ public class ExportController {
             ligneTotal.createCell(0).setCellValue("TOTAL :");
             ligneTotal.createCell(1).setCellValue(facture.calculateTotal());
         }
-        workbook.write(response.getOutputStream());
-        workbook.close();
+        return workbook;
     }
-
 }

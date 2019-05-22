@@ -32,20 +32,9 @@ public class ExportService {
         String[] headers = {"ID", "NOM", "PRENOM", "DATE DE NAISSANCE", "AGE"};
         makeHeaderRow(sheet, headers);
 
-        Integer rowIndex = 1;
         for (Client client : clientsList) {
-            Row clientRow           = sheet.createRow(rowIndex);
-            Cell cellId             = clientRow.createCell(0);
-            Cell cellNom            = clientRow.createCell(1);
-            Cell cellPrenom         = clientRow.createCell(2);
-            Cell cellDateNaissance  = clientRow.createCell(3);
-            Cell cellAge            = clientRow.createCell(4);
-            cellId.setCellValue(client.getId());
-            cellNom.setCellValue(client.getNom());
-            cellPrenom.setCellValue(client.getPrenom());
-            cellDateNaissance.setCellValue(client.getDateNaissance().toString());
-            cellAge.setCellValue(client.calculateAge());
-            rowIndex++;
+            Object[] rowContent = {client.getId(), client.getNom(), client.getPrenom(), client.getDateNaissance(), client.calculateAge()};
+            appendRow(sheet, rowContent);
         }
     }
 
@@ -56,18 +45,8 @@ public class ExportService {
 
         Integer rowIndex = 1;
         for (Facture facture : facturesList ) {
-            Row factureRow          = sheet.createRow(rowIndex);
-            Cell cellID             = factureRow.createCell(0);
-            Cell cellClientNom      = factureRow.createCell(1);
-            Cell cellClientPrenom   = factureRow.createCell(2);
-            Cell cellNbrArticles    = factureRow.createCell(3);
-            Cell cellTotal          = factureRow.createCell(4);
-            cellID.setCellValue(facture.getId());
-            cellClientNom.setCellValue(facture.getClient().getNom());
-            cellClientPrenom.setCellValue(facture.getClient().getPrenom());
-            cellNbrArticles.setCellValue(facture.calculateNombreArticles());
-            cellTotal.setCellValue(facture.calculateTotal());
-            rowIndex++;
+            Object[] rowContent = {facture.getId(), facture.getClient().getNom(), facture.getClient().getPrenom(), facture.calculateNombreArticles(), facture.calculateTotal()};
+            appendRow(sheet, rowContent);
         }
     }
 
@@ -97,7 +76,6 @@ public class ExportService {
         row4.createCell(0).setCellValue("Age");
         row4.createCell(1).setCellValue(client.calculateAge());
 
-        //for(Facture facture : client.getFactures()) {
         for (Facture facture : factureService.getClientFactures(client)) {
             Sheet factureSheet = workbook.createSheet(patronymeClient + " - Facture " + facture.getId().toString());
             String[] headers = {"ARTICLE ID", "LIBELLE", "QUANTITE","PRIX UNITAIRE","SOUS-TOTAL"};
@@ -105,22 +83,16 @@ public class ExportService {
 
             Integer rowIndex = 1;
             for (LigneFacture ligneFacture : facture.getLigneFactures()) {
-                Row ligneFactureRow = factureSheet.createRow(rowIndex);
-                Cell cellArticleId = ligneFactureRow.createCell(0);
-                Cell cellArticleLib = ligneFactureRow.createCell(1);
-                Cell cellQuantite = ligneFactureRow.createCell(2);
-                Cell cellPrixUnit = ligneFactureRow.createCell(3);
-                Cell cellSubTotal = ligneFactureRow.createCell(4);
-
-                cellArticleId.setCellValue(ligneFacture.getArticle().getId());
-                cellArticleLib.setCellValue(ligneFacture.getArticle().getLibelle());
-                cellQuantite.setCellValue(ligneFacture.getQuantite());
-                cellPrixUnit.setCellValue(ligneFacture.getArticle().getPrix());
-                cellSubTotal.setCellValue(ligneFacture.getSousTotal());
-
-                rowIndex++;
+                Object[] rowContent = {
+                        ligneFacture.getArticle().getId(),
+                        ligneFacture.getArticle().getLibelle(),
+                        ligneFacture.getQuantite(),
+                        ligneFacture.getArticle().getPrix(),
+                        ligneFacture.getSousTotal()
+                };
+                appendRow(factureSheet, rowContent);
             }
-            Row ligneTotal = factureSheet.createRow(rowIndex);
+            Row ligneTotal = factureSheet.createRow(factureSheet.getLastRowNum() + 1);
             CellStyle cellStyle = workbook.createCellStyle();
             Font font = workbook.createFont();
             font.setColor(IndexedColors.RED.getIndex());
@@ -140,12 +112,9 @@ public class ExportService {
         String[] headers = {"Libellé", "Prix"};
         makeHeaderRow(sheet, headers);
 
-        Integer rowIndex = 1;
         for (Article article : articles) {
-            Row row = sheet.createRow(rowIndex);
-            row.createCell(0).setCellValue(article.getLibelle());
-            row.createCell(1).setCellValue(article.getPrix());
-            rowIndex++;
+            Object[] rowContent = {article.getLibelle(), article.getLibelle()};
+            appendRow(sheet, rowContent);
         }
     }
 
@@ -173,5 +142,15 @@ public class ExportService {
         return headerStyle;
     }
 
+    private void appendRow(Sheet sheet, Object[] objects) {
+        Integer lastRow = sheet.getLastRowNum();
+        Row newRow = sheet.createRow(lastRow +1);
+        Integer cellIndex = 0;
+        for (Object object : objects){
+            Cell newCell = newRow.createCell(cellIndex);
+            newCell.setCellValue(object.toString());
+            cellIndex++;
+        }
+    }
 
 }

@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 /**
  * Classe permettant d'insérer des données dans l'application.
@@ -27,6 +29,9 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
 
     @Autowired
     private EntityManager em;
+
+    @Autowired
+    private ArticleService articleService;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -91,13 +96,31 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
 
         String[] newClients = "Norimaki Arale,Norimaki Senbei,Norimaki Gatchan,Son Goku,Son Gohan,Son Goten,John Lennon,Paul McMcartney,George Harrison,Ringo Starr".split(",");
         for (String clientStr : newClients) {
-            String nom       = clientStr.split(" ")[0];
-            String prenom    = clientStr.split(" ")[1];
+            String nom = clientStr.split(" ")[0];
+            String prenom = clientStr.split(" ")[1];
             Client newClient = new Client();
             newClient.setNom(nom);
             newClient.setPrenom(prenom);
             newClient.setDateNaissance(LocalDate.now());
             em.persist(newClient);
+
+            IntStream.range(1,5).forEach(
+                    i -> {
+                        Facture newF = new Facture();
+                        newF.setClient(newClient);
+                        em.persist(newF);
+                        IntStream.range(1,10).forEach(
+                                j -> {
+                                    LigneFacture newLF = new LigneFacture();
+                                    newLF.setFacture(newF);
+                                    newLF.setArticle(articleService.getRandomArticle());
+                                    newLF.setQuantite(rand.nextInt(10) + 1);
+                                    em.persist(newLF);
+                                }
+                        );
+                    }
+            );
+
         }
     }
 

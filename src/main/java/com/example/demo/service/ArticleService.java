@@ -18,4 +18,9 @@ public class ArticleService {
     public List<Article> findAllArticles() {
         return articleRepository.findAll();
     }
+
+    public Article getRandomArticle() {
+        return articleRepository.getRandomArticle();
+    }
+
 }

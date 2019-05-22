@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.util.Dictionary;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Classe permettant d'insérer des données dans l'application.
@@ -19,6 +22,8 @@ import java.time.LocalDate;
 @Service
 @Transactional
 public class InitData implements ApplicationListener<ApplicationReadyEvent> {
+
+    private Random rand = new Random();
 
     @Autowired
     private EntityManager em;
@@ -75,6 +80,25 @@ public class InitData implements ApplicationListener<ApplicationReadyEvent> {
         f4.setClient(client1);
         em.persist(f4);
         em.persist(newLigneFacture(f4,a3, 1));
+
+        String[] newArticles = "AK47,Volvic,Chauffe-eau,Litière,Tapis,Thinkpad T400,Pizza 4 Fromages,Herbe à chien,Paracetamol,Papier Toilette".split(",");
+        for (String articleStr : newArticles) {
+            Article newArticle = new Article();
+            newArticle.setLibelle(articleStr);
+            newArticle.setPrix(Math.floor(rand.nextDouble() * 100.0) + .99);
+            em.persist(newArticle);
+        }
+
+        String[] newClients = "Norimaki Arale,Norimaki Senbei,Norimaki Gatchan,Son Goku,Son Gohan,Son Goten,John Lennon,Paul McMcartney,George Harrison,Ringo Starr".split(",");
+        for (String clientStr : newClients) {
+            String nom       = clientStr.split(" ")[0];
+            String prenom    = clientStr.split(" ")[1];
+            Client newClient = new Client();
+            newClient.setNom(nom);
+            newClient.setPrenom(prenom);
+            newClient.setDateNaissance(LocalDate.now());
+            em.persist(newClient);
+        }
     }
 
 

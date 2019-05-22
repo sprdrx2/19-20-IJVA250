@@ -62,21 +62,15 @@ public class ExportService {
 
     private void makeClientWorkbook(Workbook workbook, Client client) {
         String patronymeClient = client.getNom() + " " + client.getPrenom();
-        Sheet clientSheet = workbook.createSheet(patronymeClient);
-        Row row1 = clientSheet.createRow(0);
-        Row row2 = clientSheet.createRow(1);
-        Row row3 = clientSheet.createRow(2);
-        Row row4 = clientSheet.createRow(3);
-        row1.createCell(0).setCellValue("Nom");
-        row1.createCell(1).setCellValue(client.getNom());
-        row2.createCell(0).setCellValue("Prenom");
-        row2.createCell(1).setCellValue(client.getPrenom());
-        row3.createCell(0).setCellValue("Date de Naissance");
-        row3.createCell(1).setCellValue(client.getDateNaissance().toString());
-        row4.createCell(0).setCellValue("Age");
-        row4.createCell(1).setCellValue(client.calculateAge());
+        String clientSheetTitle = patronymeClient + " " + client.getDateNaissance();
+        Sheet clientSheet = workbook.createSheet(clientSheetTitle);
+        String[] hdrs = {"ID", "NOMBRE ARTICLES", "TOTAL"};
+        makeHeaderRow(clientSheet, hdrs);
 
         for (Facture facture : factureService.getClientFactures(client)) {
+            Object[] clientSheetRowContent = {facture.getId(), facture.calculateNombreArticles(), facture.calculateTotal()};
+            appendRow(clientSheet, clientSheetRowContent);
+
             Sheet factureSheet = workbook.createSheet(patronymeClient + " - Facture " + facture.getId().toString());
             String[] headers = {"ARTICLE ID", "LIBELLE", "QUANTITE","PRIX UNITAIRE","SOUS-TOTAL"};
             makeHeaderRow(factureSheet, headers);

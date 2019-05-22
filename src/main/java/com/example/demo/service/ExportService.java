@@ -1,9 +1,11 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.Article;
 import com.example.demo.entity.Client;
 import com.example.demo.entity.Facture;
 import com.example.demo.entity.LigneFacture;
 import org.apache.poi.ss.usermodel.*;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -160,4 +162,22 @@ public class ExportService {
             cell2.setCellValue(facture.calculateTotal());
         }
     }
+
+    public void exportAllArticlesXLSX(Workbook workbook, List<Article> articles) {
+        Sheet sheet = workbook.createSheet("Articles");
+        Row hdrRow = sheet.createRow(0);
+        Cell hdrCellLib  = hdrRow.createCell(0);
+        Cell hdrCellPrix = hdrRow.createCell(1);
+        hdrCellLib.setCellValue("Libellé");
+        hdrCellPrix.setCellValue("Prix unitaire");
+
+        Integer rowIndex = 1;
+        for (Article article : articles) {
+            Row row = sheet.createRow(rowIndex);
+            row.createCell(0).setCellValue(article.getLibelle());
+            row.createCell(1).setCellValue(article.getPrix());
+            rowIndex++;
+        }
+    }
+
 }

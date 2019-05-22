@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Article;
 import com.example.demo.entity.Client;
 import com.example.demo.entity.Facture;
 import com.example.demo.entity.LigneFacture;
@@ -35,6 +36,9 @@ public class ExportController {
 
     @Autowired
     private ExportService exportService;
+
+    @Autowired
+    private ArticleService articleService;
 
     @GetMapping("/clients/csv")
     public void clientsCSV(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -85,6 +89,17 @@ public class ExportController {
         Workbook workbook = new XSSFWorkbook();
         List<Client> clients = clientService.findAllClients();
         exportService.exportAllClientsWorkbook(workbook, clients);
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+    @GetMapping("/articles/xlsx")
+    public void articlesListXLX(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("ContentDisposition", "attachment; filename=\"articles.xlsx\"");
+        Workbook workbook = new XSSFWorkbook();
+        List<Article> articles = articleService.findAllArticles();
+        exportService.exportAllArticlesXLSX(workbook, articles);
         workbook.write(response.getOutputStream());
         workbook.close();
     }

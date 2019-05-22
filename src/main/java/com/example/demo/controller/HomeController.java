@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Article;
 import com.example.demo.entity.Client;
 import com.example.demo.entity.Facture;
+import com.example.demo.service.ArticleService;
 import com.example.demo.service.ClientService;
 import com.example.demo.service.FactureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class HomeController {
     @Autowired
     private FactureService factureService;
 
+    @Autowired
+    private ArticleService articleService;
+
     @GetMapping("/")
     public ModelAndView home() {
         ModelAndView modelAndView = new ModelAndView("home");
@@ -33,6 +38,9 @@ public class HomeController {
         List<Facture> factures = factureService.findAllFactures();
         modelAndView.addObject("factures", factures);
 
-        return modelAndView;
+       List<Article> articles = articleService.findAllArticles();
+       modelAndView.addObject("articles", articles);
+
+       return modelAndView;
     }
 }

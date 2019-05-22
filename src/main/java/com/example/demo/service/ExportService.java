@@ -9,6 +9,7 @@ import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.print.DocFlavor;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.List;
@@ -28,18 +29,8 @@ public class ExportService {
 
     public void exportCLientsXLSX(Workbook workbook, List<Client> clientsList) {
         Sheet sheet = workbook.createSheet("Clients");
-
-        Row headerRow               = sheet.createRow(0);
-        Cell hdrCellId              = headerRow.createCell(0);
-        Cell hdrCellNom             = headerRow.createCell(1);
-        Cell hdrCellPrenom          = headerRow.createCell(2);
-        Cell hdrCellDateNaissance   = headerRow.createCell(3);
-        Cell hdrCellAge             = headerRow.createCell(4);
-        hdrCellId.setCellValue("ID");
-        hdrCellNom.setCellValue("NOM");
-        hdrCellPrenom.setCellValue("PRENOM");
-        hdrCellDateNaissance.setCellValue("DATE DE NAISSANCE");
-        hdrCellAge.setCellValue("AGE");
+        String[] headers = {"ID", "NOM", "PRENOM", "DATE DE NAISSANCE", "AGE"};
+        makeHeaderRow(sheet, headers);
 
         Integer rowIndex = 1;
         for (Client client : clientsList) {
@@ -60,17 +51,8 @@ public class ExportService {
 
     public void exportFacturesXLSX(Workbook workbook, List<Facture> facturesList) {
         Sheet sheet = workbook.createSheet("Factures");
-        Row headerRow           = sheet.createRow(0);
-        Cell hdrCellId          = headerRow.createCell(0);
-        Cell hdrCellClientNom   = headerRow.createCell(1);
-        Cell hdrCellClientPrenom= headerRow.createCell(2);
-        Cell hdrCellNbrArticles = headerRow.createCell(3);
-        Cell hdrCellTotal       = headerRow.createCell(4);
-        hdrCellId.setCellValue("ID");
-        hdrCellClientNom.setCellValue("CLIENT Nom");
-        hdrCellClientPrenom.setCellValue("CLIENT Prenom");
-        hdrCellNbrArticles.setCellValue("NOMBRE ARTICLES");
-        hdrCellTotal.setCellValue("TOTAL");
+        String[] headers = {"ID", "CLIENT Nom", "CLIENT Prénom", "NOMBRE ARTICLES", "TOTAL"};
+        makeHeaderRow(sheet, headers);
 
         Integer rowIndex = 1;
         for (Facture facture : facturesList ) {
@@ -118,18 +100,8 @@ public class ExportService {
         //for(Facture facture : client.getFactures()) {
         for (Facture facture : factureService.getClientFactures(client)) {
             Sheet factureSheet = workbook.createSheet(patronymeClient + " - Facture " + facture.getId().toString());
-            Row headerRow = factureSheet.createRow(0);
-            Cell hdrCellArticleId = headerRow.createCell(0);
-            Cell hdrCellArticleLib = headerRow.createCell(1);
-            Cell hdrCellQuantite = headerRow.createCell(2);
-            Cell hdrCellPrixUnit = headerRow.createCell(3);
-            Cell hdrCellSubTotal = headerRow.createCell(4);
-
-            hdrCellArticleId.setCellValue("ARTICLE ID");
-            hdrCellArticleLib.setCellValue("LIBELE");
-            hdrCellQuantite.setCellValue("QUANTITE");
-            hdrCellPrixUnit.setCellValue("PRIX UNITAIRE");
-            hdrCellSubTotal.setCellValue("SOUS-TOTAL");
+            String[] headers = {"ARTICLE ID", "LIBELLE", "QUANTITE","PRIX UNITAIRE","SOUS-TOTAL"};
+            makeHeaderRow(factureSheet, headers);
 
             Integer rowIndex = 1;
             for (LigneFacture ligneFacture : facture.getLigneFactures()) {
@@ -165,11 +137,8 @@ public class ExportService {
 
     public void exportAllArticlesXLSX(Workbook workbook, List<Article> articles) {
         Sheet sheet = workbook.createSheet("Articles");
-        Row hdrRow = sheet.createRow(0);
-        Cell hdrCellLib  = hdrRow.createCell(0);
-        Cell hdrCellPrix = hdrRow.createCell(1);
-        hdrCellLib.setCellValue("Libellé");
-        hdrCellPrix.setCellValue("Prix unitaire");
+        String[] headers = {"Libellé", "Prix"};
+        makeHeaderRow(sheet, headers);
 
         Integer rowIndex = 1;
         for (Article article : articles) {
@@ -179,5 +148,30 @@ public class ExportService {
             rowIndex++;
         }
     }
+
+    private void makeHeaderRow(Sheet sheet, String[] headers) {
+        CellStyle headerStyle = makeHeaderStyle(sheet.getWorkbook());
+        Row headerRow = sheet.createRow(0);
+        Integer cellIndex = 0;
+        for (String header : headers) {
+            Cell hdrCell = headerRow.createCell(cellIndex);
+            hdrCell.setCellStyle(headerStyle);
+            hdrCell.setCellValue(header);
+            sheet.setColumnWidth(cellIndex,20 * 256);
+            cellIndex++;
+        }
+    }
+
+    private CellStyle makeHeaderStyle(Workbook workbook) {
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(font);
+        headerStyle.setFillForegroundColor(IndexedColors.BLACK.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        return headerStyle;
+    }
+
 
 }

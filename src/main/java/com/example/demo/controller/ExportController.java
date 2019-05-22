@@ -4,10 +4,7 @@ import com.example.demo.entity.Client;
 import com.example.demo.entity.Facture;
 import com.example.demo.entity.LigneFacture;
 import com.example.demo.service.*;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -200,8 +197,17 @@ public class ExportController {
                 rowIndex++;
             }
             Row ligneTotal = factureSheet.createRow(rowIndex);
-            ligneTotal.createCell(0).setCellValue("TOTAL :");
-            ligneTotal.createCell(1).setCellValue(facture.calculateTotal());
+            CellStyle cellStyle = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            font.setColor(IndexedColors.RED.getIndex());
+            font.setBold(true);
+            cellStyle.setFont(font);
+            Cell cell1 = ligneTotal.createCell(0);
+            Cell cell2 = ligneTotal.createCell(1);
+            cell1.setCellStyle(cellStyle);
+            cell2.setCellStyle(cellStyle);
+            cell1.setCellValue("TOTAL :");
+            cell2.setCellValue(facture.calculateTotal());
         }
         return workbook;
     }

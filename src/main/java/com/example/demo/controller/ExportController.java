@@ -33,18 +33,16 @@ public class ExportController {
     @Autowired
     private FactureService factureService;
 
+    @Autowired
+    private ExportService exportService;
+
     @GetMapping("/clients/csv")
     public void clientsCSV(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"clients.csv\"");
         PrintWriter writer = response.getWriter();
         List<Client> allClients = clientService.findAllClients();
-        LocalDate now = LocalDate.now();
-        writer.println("Id;Nom;Prenom;Date de Naissance;Age");
-        List<Client> clientList = clientService.findAllClients();
-        for (Client client : clientList) {
-            writer.println(client.toCSV());
-        }
+        exportService.exportClientsCSV(writer, allClients);
     }
 
     @GetMapping("/clients/xlsx")
@@ -52,35 +50,8 @@ public class ExportController {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("ContentDisposition", "attachment; filename=\"clients.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Clients");
-
-        Row headerRow               = sheet.createRow(0);
-        Cell hdrCellId              = headerRow.createCell(0);
-        Cell hdrCellNom             = headerRow.createCell(1);
-        Cell hdrCellPrenom          = headerRow.createCell(2);
-        Cell hdrCellDateNaissance   = headerRow.createCell(3);
-        Cell hdrCellAge             = headerRow.createCell(4);
-        hdrCellId.setCellValue("ID");
-        hdrCellNom.setCellValue("NOM");
-        hdrCellPrenom.setCellValue("PRENOM");
-        hdrCellDateNaissance.setCellValue("DATE DE NAISSANCE");
-        hdrCellAge.setCellValue("AGE");
-
-        Integer rowIndex = 1;
-        for (Client client : clientService.findAllClients()) {
-            Row clientRow           = sheet.createRow(rowIndex);
-            Cell cellId             = clientRow.createCell(0);
-            Cell cellNom            = clientRow.createCell(1);
-            Cell cellPrenom         = clientRow.createCell(2);
-            Cell cellDateNaissance  = clientRow.createCell(3);
-            Cell cellAge            = clientRow.createCell(4);
-            cellId.setCellValue(client.getId());
-            cellNom.setCellValue(client.getNom());
-            cellPrenom.setCellValue(client.getPrenom());
-            cellDateNaissance.setCellValue(client.getDateNaissance().toString());
-            cellAge.setCellValue(client.calculateAge());
-            rowIndex++;
-        }
+        List<Client> clientList = clientService.findAllClients();
+        exportService.exportCLientsXLSX(workbook, clientList);
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -90,35 +61,8 @@ public class ExportController {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("ContentDisposition", "attachment; filename=\"factures.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Factures");
-
-        Row headerRow           = sheet.createRow(0);
-        Cell hdrCellId          = headerRow.createCell(0);
-        Cell hdrCellClientNom   = headerRow.createCell(1);
-        Cell hdrCellClientPrenom= headerRow.createCell(2);
-        Cell hdrCellNbrArticles = headerRow.createCell(3);
-        Cell hdrCellTotal       = headerRow.createCell(4);
-        hdrCellId.setCellValue("ID");
-        hdrCellClientNom.setCellValue("CLIENT Nom");
-        hdrCellClientPrenom.setCellValue("CLIENT Prenom");
-        hdrCellNbrArticles.setCellValue("NOMBRE ARTICLES");
-        hdrCellTotal.setCellValue("TOTAL");
-
-        Integer rowIndex = 1;
-        for (Facture facture : factureService.findAllFactures() ) {
-            Row factureRow          = sheet.createRow(rowIndex);
-            Cell cellID             = factureRow.createCell(0);
-            Cell cellClientNom      = factureRow.createCell(1);
-            Cell cellClientPrenom   = factureRow.createCell(2);
-            Cell cellNbrArticles    = factureRow.createCell(3);
-            Cell cellTotal          = factureRow.createCell(4);
-            cellID.setCellValue(facture.getId());
-            cellClientNom.setCellValue(facture.getClient().getNom());
-            cellClientPrenom.setCellValue(facture.getClient().getPrenom());
-            cellNbrArticles.setCellValue(facture.calculateNombreArticles());
-            cellTotal.setCellValue(facture.calculateTotal());
-            rowIndex++;
-        }
+        List<Facture> factures = factureService.findAllFactures();
+        exportService.exportFacturesXLSX(workbook, factures);
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -129,7 +73,7 @@ public class ExportController {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("ContentDisposition", "attachment; filename=\"client-facture.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
-        workbook = makeClientWorkbook(workbook, client);
+        exportService.exportClientWorkbook(workbook, client);
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -139,76 +83,11 @@ public class ExportController {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("ContentDisposition", "attachment; filename=\"factures-detaillees.xlsx\"");
         Workbook workbook = new XSSFWorkbook();
-        for (Client client : clientService.findAllClients()) {
-            workbook = makeClientWorkbook(workbook, client);
-        }
+        List<Client> clients = clientService.findAllClients();
+        exportService.exportAllClientsWorkbook(workbook, clients);
         workbook.write(response.getOutputStream());
         workbook.close();
-
     }
 
-    public Workbook makeClientWorkbook(Workbook workbook, Client client) {
-        String patronymeClient = client.getNom() + " " + client.getPrenom();
-        Sheet clientSheet = workbook.createSheet(patronymeClient);
-        Row row1 = clientSheet.createRow(0);
-        Row row2 = clientSheet.createRow(1);
-        Row row3 = clientSheet.createRow(2);
-        Row row4 = clientSheet.createRow(3);
-        row1.createCell(0).setCellValue("Nom");
-        row1.createCell(1).setCellValue(client.getNom());
-        row2.createCell(0).setCellValue("Prenom");
-        row2.createCell(1).setCellValue(client.getPrenom());
-        row3.createCell(0).setCellValue("Date de Naissance");
-        row3.createCell(1).setCellValue(client.getDateNaissance().toString());
-        row4.createCell(0).setCellValue("Age");
-        row4.createCell(1).setCellValue(client.calculateAge());
 
-        //for(Facture facture : client.getFactures()) {
-        for (Facture facture : factureService.getClientFactures(client)) {
-            Sheet factureSheet = workbook.createSheet(patronymeClient + " - Facture " + facture.getId().toString());
-            Row headerRow = factureSheet.createRow(0);
-            Cell hdrCellArticleId = headerRow.createCell(0);
-            Cell hdrCellArticleLib = headerRow.createCell(1);
-            Cell hdrCellQuantite = headerRow.createCell(2);
-            Cell hdrCellPrixUnit = headerRow.createCell(3);
-            Cell hdrCellSubTotal = headerRow.createCell(4);
-
-            hdrCellArticleId.setCellValue("ARTICLE ID");
-            hdrCellArticleLib.setCellValue("LIBELE");
-            hdrCellQuantite.setCellValue("QUANTITE");
-            hdrCellPrixUnit.setCellValue("PRIX UNITAIRE");
-            hdrCellSubTotal.setCellValue("SOUS-TOTAL");
-
-            Integer rowIndex = 1;
-            for (LigneFacture ligneFacture : facture.getLigneFactures()) {
-                Row ligneFactureRow = factureSheet.createRow(rowIndex);
-                Cell cellArticleId = ligneFactureRow.createCell(0);
-                Cell cellArticleLib = ligneFactureRow.createCell(1);
-                Cell cellQuantite = ligneFactureRow.createCell(2);
-                Cell cellPrixUnit = ligneFactureRow.createCell(3);
-                Cell cellSubTotal = ligneFactureRow.createCell(4);
-
-                cellArticleId.setCellValue(ligneFacture.getArticle().getId());
-                cellArticleLib.setCellValue(ligneFacture.getArticle().getLibelle());
-                cellQuantite.setCellValue(ligneFacture.getQuantite());
-                cellPrixUnit.setCellValue(ligneFacture.getArticle().getPrix());
-                cellSubTotal.setCellValue(ligneFacture.getSousTotal());
-
-                rowIndex++;
-            }
-            Row ligneTotal = factureSheet.createRow(rowIndex);
-            CellStyle cellStyle = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setColor(IndexedColors.RED.getIndex());
-            font.setBold(true);
-            cellStyle.setFont(font);
-            Cell cell1 = ligneTotal.createCell(0);
-            Cell cell2 = ligneTotal.createCell(1);
-            cell1.setCellStyle(cellStyle);
-            cell2.setCellStyle(cellStyle);
-            cell1.setCellValue("TOTAL :");
-            cell2.setCellValue(facture.calculateTotal());
-        }
-        return workbook;
-    }
 }

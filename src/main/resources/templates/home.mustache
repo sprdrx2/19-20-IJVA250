@@ -4,19 +4,26 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
+    <div class="container-fluid">
+    <div class="row">
 
+    <div class="col3">
     <h1>Articles <a href="/articles/xlsx">xlsx</a></h1>
     <hr/>
 
     {{>articles}}
 
-    <hr/>
-    <h1>Clients <a href="/clients/csv">csv</a>-<a href="/clients/xlsx">xlsx</a>-<a>json</a>-<a>xml</a>-<a>pdf</a></h1>
+    </div>
+
+    <div class="col3">
+    <h1>Clients <a href="/clients/csv">csv</a>-<a href="/clients/xlsx">xlsx</a><!---<a>json</a>-<a>xml</a>-<a>pdf</a>--></h1>
     <hr/>
 
     {{>clients}}
 
-    <hr/>
+    </div>
+
+    <div class="col3">
     <h1>Factures xlsx <a href="/factures/xlsx">résumé</a> ou <a href="/factures/details/xlsx">détaillé</a></h1>
     <hr/>
 
@@ -26,5 +33,12 @@
         <h2>Facture numéro {{id}} de {{client.nom}} {{client.prenom}} <a href="/factures/{{id}}/pdf">pdf</a></h2>
         {{>factures}}
     {{/factures}}
+
+    </div>
+
+    </div>
+
+    </div>
+
 </body>
 </html>
